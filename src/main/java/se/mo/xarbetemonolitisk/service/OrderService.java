@@ -2,6 +2,8 @@ package se.mo.xarbetemonolitisk.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.mo.xarbetemonolitisk.dto.order.CreateOrderRequest;
@@ -21,6 +23,7 @@ import se.mo.xarbetemonolitisk.repository.UserRepository;
 @Service
 public class OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
@@ -70,6 +73,8 @@ public class OrderService {
 
         order.setTotalPrice(total);
         Order saved = orderRepository.save(order);
+        log.info("Order created: orderId={} userId={} itemCount={} totalPrice={}",
+                saved.getId(), user.getId(), saved.getItems().size(), saved.getTotalPrice());
 
         return toResponse(saved);
     }
