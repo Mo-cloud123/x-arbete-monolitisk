@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Users</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f7f9; margin: 0; color: #1c2430; }
+    .wrap { max-width: 920px; margin: 30px auto; padding: 0 16px; }
+    .row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card { background: #fff; border: 1px solid #e1e6ec; border-radius: 10px; padding: 16px; }
+    h1, h2 { margin-top: 0; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #4f5d6b; }
+    input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cfd7e2; border-radius: 8px; margin-bottom: 10px; }
+    button { background: #0b3a78; color: #fff; border: 0; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #0a3369; }
+    pre { background: #0f1720; color: #e5edf5; padding: 12px; border-radius: 8px; overflow: auto; min-height: 120px; }
+    a { color: #0b3a78; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <p><a href="/">Till startsidan</a></p>
+  <h1>Users</h1>
+  <div class="row">
+    <section class="card">
+      <h2>Skapa user</h2>
+      <label for="name">Namn</label>
+      <input id="name" placeholder="Alice">
+      <label for="email">E-post</label>
+      <input id="email" placeholder="alice@example.com">
+      <button id="createUserBtn">Skapa</button>
+    </section>
+
+    <section class="card">
+      <h2>Hamta user</h2>
+      <label for="userId">User ID</label>
+      <input id="userId" placeholder="1">
+      <button id="getUserBtn">Hamta</button>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Svar</h2>
+    <pre id="output">{}</pre>
+  </section>
+</div>
+
+<script>
+  const output = document.getElementById("output");
+
+  function show(json) {
+    output.textContent = JSON.stringify(json, null, 2);
+  }
+
+  async function request(url, options) {
+    const res = await fetch(url, options);
+    let data;
+    try { data = await res.json(); } catch (_) { data = { status: res.status }; }
+    if (!res.ok) throw data;
+    return data;
+  }
+
+  document.getElementById("createUserBtn").addEventListener("click", async () => {
+    try {
+      const data = await request("/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: document.getElementById("name").value,
+          email: document.getElementById("email").value
+        })
+      });
+      show(data);
+    } catch (e) { show(e); }
+  });
+
+  document.getElementById("getUserBtn").addEventListener("click", async () => {
+    try {
+      const id = document.getElementById("userId").value;
+      const data = await request(`/users/${id}`, { method: "GET" });
+      show(data);
+    } catch (e) { show(e); }
+  });
+</script>
+</body>
+</html>

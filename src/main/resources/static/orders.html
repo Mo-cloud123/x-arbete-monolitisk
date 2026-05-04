@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orders</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f7f9; margin: 0; color: #1c2430; }
+    .wrap { max-width: 920px; margin: 30px auto; padding: 0 16px; }
+    .row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card { background: #fff; border: 1px solid #e1e6ec; border-radius: 10px; padding: 16px; }
+    h1, h2 { margin-top: 0; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #4f5d6b; }
+    input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cfd7e2; border-radius: 8px; margin-bottom: 10px; }
+    button { background: #0b3a78; color: #fff; border: 0; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-right: 8px; }
+    button:hover { background: #0a3369; }
+    pre { background: #0f1720; color: #e5edf5; padding: 12px; border-radius: 8px; overflow: auto; min-height: 120px; }
+    a { color: #0b3a78; text-decoration: none; }
+    .hint { color: #5f6d7a; font-size: 12px; margin-top: -4px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <p><a href="/">Till startsidan</a></p>
+  <h1>Orders</h1>
+  <div class="row">
+    <section class="card">
+      <h2>Skapa order</h2>
+      <label for="orderUserId">User ID</label>
+      <input id="orderUserId" placeholder="1">
+      <label for="orderProductId">Product ID</label>
+      <input id="orderProductId" placeholder="1">
+      <label for="orderQuantity">Quantity</label>
+      <input id="orderQuantity" placeholder="2">
+      <p class="hint">En rad per order i denna enkla vy.</p>
+      <button id="createOrderBtn">Skapa</button>
+    </section>
+
+    <section class="card">
+      <h2>Hamta order</h2>
+      <label for="orderId">Order ID</label>
+      <input id="orderId" placeholder="1">
+      <button id="getOrderBtn">Hamta</button>
+    </section>
+
+    <section class="card">
+      <h2>Hamta orders per user</h2>
+      <label for="ordersByUserId">User ID</label>
+      <input id="ordersByUserId" placeholder="1">
+      <button id="getOrdersByUserBtn">Hamta lista</button>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Svar</h2>
+    <pre id="output">[]</pre>
+  </section>
+</div>
+
+<script>
+  const output = document.getElementById("output");
+  const show = (json) => output.textContent = JSON.stringify(json, null, 2);
+
+  async function request(url, options) {
+    const res = await fetch(url, options);
+    let data;
+    try { data = await res.json(); } catch (_) { data = { status: res.status }; }
+    if (!res.ok) throw data;
+    return data;
+  }
+
+  document.getElementById("createOrderBtn").addEventListener("click", async () => {
+    try {
+      const data = await request("/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: Number(document.getElementById("orderUserId").value),
+          items: [{
+            productId: Number(document.getElementById("orderProductId").value),
+            quantity: Number(document.getElementById("orderQuantity").value)
+          }]
+        })
+      });
+      show(data);
+    } catch (e) { show(e); }
+  });
+
+  document.getElementById("getOrderBtn").addEventListener("click", async () => {
+    try {
+      const id = document.getElementById("orderId").value;
+      const data = await request(`/orders/${id}`, { method: "GET" });
+      show(data);
+    } catch (e) { show(e); }
+  });
+
+  document.getElementById("getOrdersByUserBtn").addEventListener("click", async () => {
+    try {
+      const userId = document.getElementById("ordersByUserId").value;
+      const data = await request(`/orders/user/${userId}`, { method: "GET" });
+      show(data);
+    } catch (e) { show(e); }
+  });
+</script>
+</body>
+</html>
