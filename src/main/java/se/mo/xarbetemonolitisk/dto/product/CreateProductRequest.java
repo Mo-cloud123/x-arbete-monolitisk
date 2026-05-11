@@ -19,6 +19,9 @@ public class CreateProductRequest {
     @Min(0)
     private Integer stock;
 
+    private String category;
+
+
     public String getName() {
         return name;
     }
@@ -41,5 +44,13 @@ public class CreateProductRequest {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

@@ -23,6 +23,7 @@ public class ProductService {
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
+        product.setCategory(request.getCategory());
         return toResponse(productRepository.save(product));
     }
 
@@ -40,6 +41,7 @@ public class ProductService {
         response.setName(product.getName());
         response.setPrice(product.getPrice());
         response.setStock(product.getStock());
+        response.setCategory(product.getCategory());
         return response;
     }
 }
